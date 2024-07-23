@@ -15,19 +15,51 @@
 
     <div class="container">
 
-      <form action="/books/search" method="POST" class="col-12 col-lg-auto mb-3 me-lg-3" _lpchecked="1">
+      <form action="/books/search" method="POST" class="col-12 col-lg-auto mb-3 me-lg-3 formmm" _lpchecked="1">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Book Title..." name="title">
+          <input type="text" class="form-control inputOfForm" placeholder="Book Title..." name="title">
           <button type="submit" class="btn btn-secondary">Search</button>
         </div>
       </form>
-
-
-    <div class="list-group">
-      
-    </div>
   </div>
 </div>
+<% if (books) { %>
+<div class="list-group mt-3">
+  <div class="container">
+  <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+  <% if (books.length > 0) { %>
+    <% books.forEach(book => { %>
+      <div class="feature col">
+        <div class="feature-icon bg-gradient">
+          <img class="d-block mx-auto mb-4" src="<%= book.cover%>" alt="" width="172" height="257">
+        </div>
+        <h2><%= book.title%></h2>
+        <p> <%= book.description%></p>
+        <a href="/books/detail/<%= book.id%>" class="icon-link">
+          Detail
+        </a>
+      </div>
+      <% }); %>
+  </div>
+</div>
+  <% } else { %>
+      <p>No books found.</p>
+  <% } %>
+</div>
+<% } %>
+
+<script>
+  //para que no se envie vacio
+  let formmm = document.querySelector('.formmm')
+
+  formmm.addEventListener("submit",function(e){
+    let inp = document.querySelector(".inputOfForm")
+    if (inp.value.trim() === "") {
+      e.preventDefault()
+      } 
+    })
+</script>
+
 
 
 <%- include('partials/footer.ejs') %>

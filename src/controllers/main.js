@@ -1,6 +1,6 @@
 const bcryptjs = require('bcryptjs');
 const db = require('../database/models');
-
+const { Op } = require('sequelize');
 const mainController = {
   home: (req, res) => {
     db.Book.findAll({
@@ -13,14 +13,30 @@ const mainController = {
   },
   bookDetail: (req, res) => {
     // Implement look for details in the database
-    res.render('bookDetail');
+    db.Book.findByPk(req.params.id,{include:[{association:"authors"}]})
+    .then((book) => {
+      res.render('bookDetail', {book})
+    })
+    .catch((error) => console.log(error)); 
   },
   bookSearch: (req, res) => {
-    res.render('search', { books: [] });
+    res.render('search', { books: null});
   },
   bookSearchResult: (req, res) => {
     // Implement search by title
-    res.render('search');
+    const bookSearch = req.body.title;
+
+  db.Book.findAll({
+    where: {
+      title: {
+        [Op.like]: `%${bookSearch}%`
+      }
+    }
+  })
+  .then((books) => {
+    res.render('search', { books });
+  })
+  .catch((error) => console.log(error)); 
   },
   deleteBook: (req, res) => {
     // Implement delete book
@@ -35,7 +51,13 @@ const mainController = {
   },
   authorBooks: (req, res) => {
     // Implement books by author
-    res.render('authorBooks');
+    db.Author.findByPk(req.params.id, {
+      include: [{association:"books"}]
+    })
+    .then((author) => {
+      res.render('authorBooks', { author });
+    })
+    .catch((error) => console.log(error));
   },
   register: (req, res) => {
     res.render('register');
@@ -63,12 +85,32 @@ const mainController = {
   },
   edit: (req, res) => {
     // Implement edit book
-    res.render('editBook', {id: req.params.id})
+    db.Book.findByPk(req.params.id, {
+      include: [{association:"authors"}]
+    })
+    .then((book) => {
+      res.render('editBook', {book})
+    })
+    .catch((error) => console.log(error));
   },
-  processEdit: (req, res) => {
+  processEdit: async (req, res) => {
     // Implement edit book
-    res.render('home');
+    try {
+      const {title, cover, description} = req.body;
+
+      await db.Book.update({
+          title: title,
+          cover: cover,
+          description: description
+      }, {
+          where: {id: req.params.id}
+      });
+      res.redirect('/');
+  } catch (error) {
+      console.log(error);
   }
+}
+
 };
 
 module.exports = mainController;
