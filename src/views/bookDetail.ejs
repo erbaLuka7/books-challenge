@@ -20,8 +20,10 @@
           <p class="lead mb-4 fw-bold">Release Date: </p>
           <p class="lead mb-4"><%= book.description%></p>
           <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <button type="button" class="btn btn-primary btn-lg px-4 gap-3" onclick="editBook(<%= book.id %>)">Edit</button>
-            <button type="button" class="btn btn-outline-secondary btn-lg px-4">Delete</button>
+            <% if (locals.userLogin?.categoryId === 1) { %>
+              <button type="button" class="btn btn-primary btn-lg px-4 gap-3" onclick="editBook(<%= book.id %>)">Edit</button>
+              <button type="button" class="btn btn-outline-secondary btn-lg px-4" onclick="confirmDelete(<%= book.id %>)">Delete</button>
+            <% } %>
           </div>
         </div>
       </div>
@@ -31,6 +33,11 @@
   function editBook(bookId) {
       window.location.href = '/books/edit/' + bookId;
   }
+  function confirmDelete(bookId) {
+      if (confirm('Are you sure you want to delete this book?')) {
+        window.location.href = '/books/delete/' + bookId;
+      }
+    }
   </script>
 
 <%- include('partials/footer.ejs') %>

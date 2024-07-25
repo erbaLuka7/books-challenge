@@ -31,7 +31,14 @@
                 <div class="col-md-9 pe-5">
   
                   <input type="email" name="email" class="form-control form-control-lg" placeholder="example@gmail.com" />
-  
+                  <% if (locals.errors) { %>
+                    <% locals.errors.forEach(error => { %>
+                        <% if (error.path === 'email') { %>
+                            <span class="text-danger m-0 align-top"><%= error.msg %></span>   
+                        <% } %>
+                    <% }) %>    
+                <% } %> 
+                <span class="text-danger m-0"><%= typeof locals.error !== "undefined" ? locals.error : "" %></span>
                 </div>
               </div>
   
@@ -46,8 +53,22 @@
                 <div class="col-md-9 pe-5">
   
                   <input type="password" name="password" class="form-control form-control-lg" >
-  
+                  <% if (locals.errors) { %>
+                    <% locals.errors.forEach(error => { %>
+                        <% if (error.path === 'password') { %>
+                            <span class="text-danger m-0 align-top"><%= error.msg %></span>   
+                        <% } %>
+                    <% }) %>    
+                <% } %> 
+                <span class="text-danger m-0"><%= typeof locals.error !== "undefined" ? locals.error : "" %></span>
                 </div>
+              </div>
+
+              <div class="m-4 form-check">
+                <input class="form-check-input" name="remember" type="checkbox" id="flexCheckChecked" >
+                <label class="form-check-label" for="flexCheckChecked">
+                  Remember
+                </label>
               </div>
   
               <hr class="mx-n3">

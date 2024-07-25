@@ -1,4 +1,5 @@
 const bcryptjs = require('bcryptjs');
+const { validationResult } = require("express-validator");
 const db = require('../database/models');
 const { Op } = require('sequelize');
 const mainController = {
@@ -38,9 +39,18 @@ const mainController = {
   })
   .catch((error) => console.log(error)); 
   },
-  deleteBook: (req, res) => {
+  deleteBook: async (req, res) => {
     // Implement delete book
-    res.render('home');
+    try {
+
+      await db.Book.destroy({
+          where: {id: req.params.id}
+      });
+      res.redirect('/');
+  } catch (error) {
+      console.log(error);
+  }
+    
   },
   authors: (req, res) => {
     db.Author.findAll()
@@ -81,7 +91,41 @@ const mainController = {
   },
   processLogin: (req, res) => {
     // Implement login process
-    res.render('home');
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      db.User.findOne({
+          where: {
+              Email: req.body.email
+          }
+      })
+      .then(userr => {
+        if (!userr) {
+            return res.render("login", { error: "Invalid data" });
+        }
+        
+        const userCorrect = bcryptjs.compareSync(req.body.password, userr.Pass);
+
+        if (!userCorrect) {
+            return res.render("login", { error: "Invalid data" });
+        } else {
+            req.session.userLogin = userr
+
+            if (req.body.remember !== undefined) {
+              res.cookie("userLogin", userr, { maxAge: 300000 });
+          }
+            return res.redirect("/");
+        } 
+      
+    })
+    .catch((error) => console.log(error));
+    }  else {
+      return res.render("login", { errors: errors.array() });
+  }
+  },
+  logout: (req,res) => {
+    req.session.destroy();
+    res.cookie("userLogin","",{maxAge: -1});
+    res.redirect('/')
   },
   edit: (req, res) => {
     // Implement edit book
